@@ -1,4 +1,4 @@
-package go_rest_docs_test
+package main_test
 
 import (
 	"github.com/gorilla/mux"
