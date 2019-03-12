@@ -74,7 +74,13 @@ func (doc *APIDoc) AddHTTPRequest(domain, description string, req *http.Request)
 		Description: description,
 		Method:      req.Method,
 		URL:         req.URL.Path,
+
 	}
+
+	reqBodyBuf, _ := ioutil.ReadAll(req.Body)
+	req.Body = ioutil.NopCloser(bytes.NewBuffer(reqBodyBuf))
+
+	c.RequestBody = fmtJson(reqBodyBuf)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
@@ -97,17 +103,21 @@ func (doc *APIDoc) AddHTTPRequest(domain, description string, req *http.Request)
 	}
 
 	c.RespCode = resp.StatusCode
-	buff := &bytes.Buffer{}
-	err = json.Indent(buff, b, "", "\t")
-	if err != nil {
-		c.RespBody = string(b)
-	} else {
-		c.RespBody = buff.String()
-	}
+	c.RespBody = fmtJson(b)
 
 	d.Calls = append(d.Calls, c)
 
 	return resp, nil
+}
+
+func fmtJson(body []byte) string {
+	buff := &bytes.Buffer{}
+	err := json.Indent(buff, body, "", "\t")
+	if err != nil {
+		return string(body)
+	} else {
+		return buff.String()
+	}
 }
 
 // AddDomain allows you to define a domain and description
@@ -144,6 +154,9 @@ func (doc *APIDoc) Print() string {
 		for _, call := range domain.Calls {
 
 			reqString := fmt.Sprintf("%s %s", call.Method, call.URL)
+			if call.RequestBody != "" {
+				reqString = reqString + fmt.Sprintf("\n\n%s", call.RequestBody)
+			}
 			respString := fmt.Sprintf("Code: %d\n\nBody: %s", call.RespCode, call.RespBody)
 			builder.H3(call.Method).Body(call.Description).H4("Request").Code(reqString).H4("Response").Code(respString)
 		}

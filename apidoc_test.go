@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
@@ -12,6 +13,7 @@ func TestGenerateDoc(t *testing.T) {
 
 	doc := apidoc.NewAPIDoc("Test", "This is a sample document for a test api")
 	doc.AddDomain("Hello", "This is a test domain")
+	doc.SetMarkdownFileName("test")
 
 	helloHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("world!"))
@@ -22,7 +24,7 @@ func TestGenerateDoc(t *testing.T) {
 	ts := httptest.NewServer(router)
 	defer ts.Close()
 
-	req, _ := http.NewRequest("GET", ts.URL+"/hello", nil)
+	req, _ := http.NewRequest("GET", ts.URL+"/hello", strings.NewReader("{\"hello\": \"world\"}"))
 
 	desc := `This is supposed to be a long description with multiple lines and details that hopefully
 will output properly and is representative of a longer description for what this will do`
@@ -38,6 +40,6 @@ will output properly and is representative of a longer description for what this
 	}
 
 	t.Log(doc.Print())
-	doc.GenerateHTMLFile()
+	//doc.GenerateHTMLFile()
 	doc.GenerateMarkdownFile()
 }
