@@ -2,6 +2,7 @@ package gorestdoc
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -96,7 +97,13 @@ func (doc *APIDoc) AddHTTPRequest(domain, description string, req *http.Request)
 	}
 
 	c.RespCode = resp.StatusCode
-	c.RespBody = string(b)
+	buff := &bytes.Buffer{}
+	err = json.Indent(buff, b, "", "\t")
+	if err != nil {
+		c.RespBody = string(b)
+	} else {
+		c.RespBody = buff.String()
+	}
 
 	d.Calls = append(d.Calls, c)
 
