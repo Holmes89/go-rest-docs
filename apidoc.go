@@ -77,10 +77,13 @@ func (doc *APIDoc) AddHTTPRequest(domain, description string, req *http.Request)
 
 	}
 
-	reqBodyBuf, _ := ioutil.ReadAll(req.Body)
-	req.Body = ioutil.NopCloser(bytes.NewBuffer(reqBodyBuf))
+	if req.Body != nil {
+		reqBodyBuf, _ := ioutil.ReadAll(req.Body)
+		req.Body = ioutil.NopCloser(bytes.NewBuffer(reqBodyBuf))
 
-	c.RequestBody = fmtJson(reqBodyBuf)
+		c.RequestBody = fmtJson(reqBodyBuf)
+	}
+
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {

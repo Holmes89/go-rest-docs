@@ -31,6 +31,11 @@ will output properly and is representative of a longer description for what this
 
 	resp, err := doc.AddHTTPRequest("Hello", desc, req)
 
+	// Nil body
+	req, _ = http.NewRequest("GET", ts.URL+"/hello", nil)
+
+	resp, err = doc.AddHTTPRequest("Hello", desc, req)
+
 	if err != nil {
 		t.Error("Error from test")
 	}
