@@ -3,7 +3,6 @@ package gorestdoc
 import (
 	"bytes"
 	"fmt"
-	"github.com/russross/blackfriday"
 	"io"
 	"io/ioutil"
 	"log"
@@ -147,17 +146,17 @@ func (doc *APIDoc) Print() string {
 }
 
 // GenerateHTMLFile creates an HTML file from document struct
-func (doc *APIDoc) GenerateHTMLFile() {
-	md := doc.Print()
-	output := blackfriday.Run([]byte(md), blackfriday.WithExtensions(blackfriday.CommonExtensions))
-
-	f, err := os.Create(doc.htmlFileName)
-	if err != nil {
-		log.Fatal("could not create file")
-	}
-	defer f.Close()
-	f.Write(output)
-}
+//func (doc *APIDoc) GenerateHTMLFile() {
+//	md := doc.Print()
+//	output := blackfriday.Run([]byte(md), blackfriday.WithExtensions(blackfriday.CommonExtensions))
+//
+//	f, err := os.Create(doc.htmlFileName)
+//	if err != nil {
+//		log.Fatal("could not create file")
+//	}
+//	defer f.Close()
+//	f.Write(output)
+//}
 
 // GenerateHTMLFile creates an Markdown file from document struct
 func (doc *APIDoc) GenerateMarkdownFile() {
