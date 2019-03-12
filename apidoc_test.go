@@ -1,8 +1,8 @@
-package apidoc_test
+package go_rest_docs_test
 
 import (
 	"github.com/gorilla/mux"
-	"go-rest-docs/apidoc"
+	apidoc "go-rest-docs"
 	"net/http"
 	"net/http/httptest"
 	"testing"

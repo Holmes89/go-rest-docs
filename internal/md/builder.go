@@ -1,4 +1,4 @@
-package apidoc
+package md
 
 import "strings"
 
