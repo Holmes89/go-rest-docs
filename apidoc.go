@@ -1,4 +1,4 @@
-package main
+package gorestdoc
 
 import (
 	"bytes"
@@ -15,31 +15,31 @@ import (
 
 // APIDoc Builds a base document for testing
 type APIDoc struct {
-	Title string
-	Description string
-	Generated time.Time
+	Title            string
+	Description      string
+	Generated        time.Time
 	markdownFileName string
-	htmlFileName string
-	domains map[string]*domain
+	htmlFileName     string
+	domains          map[string]*domain
 }
 
 // domain fill in here
 type domain struct {
-	Name string
+	Name        string
 	Description string
-	Calls []*call
+	Calls       []*call
 }
 
 // call fill in here
 type call struct {
-	Description string
-	Method string
+	Description    string
+	Method         string
 	RequestHeaders []string
-	RequestBody string
-	URL string
-	RespCode int
-	RespBody string
-	RespHeaders []string
+	RequestBody    string
+	URL            string
+	RespCode       int
+	RespBody       string
+	RespHeaders    []string
 }
 
 // emptyBody is an instance of empty reader.
@@ -47,11 +47,11 @@ var emptyBody = ioutil.NopCloser(strings.NewReader(""))
 
 func NewAPIDoc(title, description string) *APIDoc {
 	return &APIDoc{
-		Title: title,
-		Description: description,
+		Title:            title,
+		Description:      description,
 		markdownFileName: "README.md",
-		htmlFileName: "api.html",
-		domains: make(map[string]*domain),
+		htmlFileName:     "api.html",
+		domains:          make(map[string]*domain),
 	}
 }
 
@@ -66,14 +66,14 @@ func (doc *APIDoc) SetHTMLFileName(name string) {
 }
 
 // AddHTTPRequest
-func (doc *APIDoc) AddHTTPRequest(domain, description string, req *http.Request) (*http.Response, error){
+func (doc *APIDoc) AddHTTPRequest(domain, description string, req *http.Request) (*http.Response, error) {
 
 	d := doc.getDomain(domain)
 
 	c := &call{
 		Description: description,
-		Method: req.Method,
-		URL: req.URL.Path,
+		Method:      req.Method,
+		URL:         req.URL.Path,
 	}
 
 	resp, err := http.DefaultClient.Do(req)
@@ -107,7 +107,7 @@ func (doc *APIDoc) AddHTTPRequest(domain, description string, req *http.Request)
 // AddDomain allows you to define a domain and description
 func (doc *APIDoc) AddDomain(name, description string) {
 	d := &domain{
-		Name: name,
+		Name:        name,
 		Description: description,
 	}
 	doc.domains[name] = d
@@ -125,7 +125,7 @@ func (doc *APIDoc) getDomain(name string) *domain {
 }
 
 // Print outputs a string response
-func (doc *APIDoc) Print() string{
+func (doc *APIDoc) Print() string {
 
 	builder := MarkDownBuilder{}
 
