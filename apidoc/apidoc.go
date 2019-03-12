@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/russross/blackfriday"
-	"go-rest-docs/internal/md"
 	"io"
 	"io/ioutil"
 	"log"
@@ -128,7 +127,7 @@ func (doc *APIDoc) getDomain(name string) *domain {
 // Print outputs a string response
 func (doc *APIDoc) Print() string{
 
-	builder := md.MarkDownBuilder{}
+	builder := MarkDownBuilder{}
 
 	builder.H1(doc.Title).Body(doc.Description)
 
