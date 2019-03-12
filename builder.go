@@ -1,4 +1,4 @@
-package md
+package go_rest_docs
 
 import "strings"
 
