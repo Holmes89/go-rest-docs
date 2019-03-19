@@ -70,19 +70,56 @@ func (doc *APIDoc) AddHTTPRequest(domain, description string, req *http.Request)
 
 	d := doc.getDomain(domain)
 
+	url := req.URL.Path
+	if req.URL.RawQuery != "" {
+		url = url + "?" + req.URL.RawQuery
+	}
 	c := &call{
 		Description: description,
 		Method:      req.Method,
-		URL:         req.URL.Path,
-
+		URL:         url,
 	}
 
 	if req.Body != nil {
-		reqBodyBuf, _ := ioutil.ReadAll(req.Body)
-		req.Body = ioutil.NopCloser(bytes.NewBuffer(reqBodyBuf))
+		contentTypeHeader := req.Header.Get("Content-Type")
+		if strings.Contains(contentTypeHeader, "multipart/form-data") {
+			req.ParseMultipartForm(100)
+			var multipartOutBuilder strings.Builder
+			if req.MultipartForm != nil {
+				if req.MultipartForm.Value != nil {
+					multipartOutBuilder.WriteString("Form Values:\n\n")
+					for formkey, valueArray := range req.MultipartForm.Value {
+						multipartOutBuilder.WriteString("\t" + formkey+ ": ")
+						for _, val := range valueArray {
+							multipartOutBuilder.WriteString(val + " ")
+						}
+						multipartOutBuilder.WriteString("\n")
+					}
+					multipartOutBuilder.WriteString("\n\n")
+				}
 
-		c.RequestBody = fmtJson(reqBodyBuf)
+				if req.MultipartForm.File != nil {
+					multipartOutBuilder.WriteString("Files:\n\n")
+					for formkey, fileArray := range req.MultipartForm.File {
+						multipartOutBuilder.WriteString("\t" + formkey+ ": ")
+						for _, file := range fileArray {
+							multipartOutBuilder.WriteString(file.Filename + " ")
+						}
+						multipartOutBuilder.WriteString("\n")
+					}
+				}
+
+				c.RequestBody = multipartOutBuilder.String()
+			}
+		} else {
+			reqBodyBuf, _ := ioutil.ReadAll(req.Body)
+			req.Body = ioutil.NopCloser(bytes.NewBuffer(reqBodyBuf))
+
+			c.RequestBody = fmtJson(reqBodyBuf)
+		}
 	}
+
+
 
 
 	resp, err := http.DefaultClient.Do(req)
@@ -168,18 +205,6 @@ func (doc *APIDoc) Print() string {
 	return builder.Build()
 }
 
-// GenerateHTMLFile creates an HTML file from document struct
-//func (doc *APIDoc) GenerateHTMLFile() {
-//	md := doc.Print()
-//	output := blackfriday.Run([]byte(md), blackfriday.WithExtensions(blackfriday.CommonExtensions))
-//
-//	f, err := os.Create(doc.htmlFileName)
-//	if err != nil {
-//		log.Fatal("could not create file")
-//	}
-//	defer f.Close()
-//	f.Write(output)
-//}
 
 // GenerateHTMLFile creates an Markdown file from document struct
 func (doc *APIDoc) GenerateMarkdownFile() {
